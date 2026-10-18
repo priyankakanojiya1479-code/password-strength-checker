@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!--
+  templates/index.html — Password Checker ka Web Page
+  =====================================================
+  Flask ki ek khaas baat: yeh HTML files "templates/" folder se dhundhta hai.
+  Isliye humne yeh file templates/ folder mein rakhi hai.
+
+  Yahan Jinja2 templating use hoti hai — yeh Flask ka built-in tool hai
+  jisse Python ka data HTML mein daal sakte hain.
+  Jinja2 syntax: {{ variable }}  ya  {% if condition %} ... {% endif %}
+-->
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Password Strength Checker</title>
+  <style>
+    /* ============================================================
+       PAGE LAYOUT — basic styling
+       ============================================================ */
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;   /* horizontally center */
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 16px;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    /* Main card — white box */
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      color: #1f2328;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #57606a;
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    /* ============================================================
+       FORM STYLING — input box aur button
+       ============================================================ */
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1f2328;
+    }
+
+    /* Password input field */
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #d0d7de;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    /* Focus pe border highlight hoga */
+    input[type="password"]:focus {
+      border-color: #3b82d4;
+    }
+
+    /* Check button */
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      background: #3b82d4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #2563a8;
+    }
+
+    /* ============================================================
+       RESULT SECTION
+       ============================================================ */
+    .result-box {
+      margin-top: 28px;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 5px solid;   /* left side pe rang wali line */
+    }
+
+    /* Har strength ke liye alag rang */
+    /* score <= 2  ya common password */
+    .result-box.very-weak  { background: #fff0f0; border-color: #e53e3e; }
+    /* score == 3 */
+    .result-box.weak       { background: #fff5eb; border-color: #dd6b20; }
+    /* score == 4 */
+    .result-box.moderate   { background: #fffff0; border-color: #d69e2e; }
+    /* score == 5 */
+    .result-box.strong     { background: #f0fff4; border-color: #38a169; }
+    /* score == 6 */
+    .result-box.very-strong{ background: #ebfff3; border-color: #276749; }
+
+    .strength-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .score-line {
+      font-size: 0.85rem;
+      color: #57606a;
+      margin-bottom: 14px;
+    }
+
+    /* Suggestions list */
+    .feedback-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .feedback-list li {
+      font-size: 0.9rem;
+      padding: 4px 0;
+      color: #4a5568;
+    }
+
+    .all-good {
+      font-size: 0.95rem;
+      color: #276749;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <h1>🔐 Password Strength Checker</h1>
+    <p class="subtitle">Apna password daalo — hum batayenge kitna strong hai!</p>
+
+    <!-- ============================================================
+         FORM
+         action="/" matlab submit hone pe "/" URL pe POST request jayegi.
+         method="post" matlab data POST method se bheja jayega (secure).
+         ============================================================ -->
+    <form action="/" method="post">
+
+      <label for="password">Password:</label>
+
+      <!--
+        type="password" — yeh browser ka built-in feature hai.
+        Jab user type karta hai toh characters dots (•••) mein dikhte hain.
+        Koi JS nahi chahiye — browser khud handle karta hai!
+        name="password" — Flask iska use karta hai: request.form["password"]
+      -->
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Yahan password likho..."
+        required
+        autofocus
+      />
+
+      <button type="submit">🔍 Check Karo</button>
+    </form>
+
+    <!-- ============================================================
+         RESULT SECTION — sirf tab dikhega jab form submit hua ho
+
+         Jinja2 syntax samjho:
+           {# if result #}     Python ka "if result:" jaisa
+           result.strength     Python dictionary ka value
+           {# for tip in ... #} Python ka for loop
+           endif / endfor      block band karne ke tags
+         ============================================================ -->
+    {% if result %}
+
+      {#
+        CSS class dynamically set ho rahi hai score ke hisaab se.
+        Jinja2 mein if-elif-else bilkul Python jaisa hi hota hai.
+      #}
+      {% if result.score == 0 %}
+        {% set color_class = "very-weak" %}
+      {% elif result.score == 3 %}
+        {% set color_class = "weak" %}
+      {% elif result.score == 4 %}
+        {% set color_class = "moderate" %}
+      {% elif result.score == 5 %}
+        {% set color_class = "strong" %}
+      {% else %}
+        {% set color_class = "very-strong" %}
+      {% endif %}
+
+      <div class="result-box {{ color_class }}">
+
+        <div class="strength-label">{{ result.strength }}</div>
+        <div class="score-line">Score: {{ result.score }} / 6</div>
+
+        {# Agar feedback hai toh suggestions dikhao #}
+        {% if result.feedback %}
+          <ul class="feedback-list">
+            {% for tip in result.feedback %}
+              <li>{{ tip }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="all-good">✅ Wah! Aapka password bahut strong hai!</p>
+        {% endif %}
+
+      </div>
+    {% endif %}
+
+  </div>
+</body>
+</html>

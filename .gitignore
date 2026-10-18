@@ -1,0 +1,80 @@
+﻿# ============================================================
+# .gitignore — Python Project ke liye
+# ============================================================
+# Yeh file Git ko batati hai ki kaun si files/folders ko
+# TRACK MAT KARO (ignore karo).
+# Matlab yeh files kabhi GitHub pe upload nahi hongi.
+# ============================================================
+
+
+# ------------------------------------------------------------
+# PYTHON CACHE FILES
+# ------------------------------------------------------------
+# Jab Python code run hota hai toh yeh folders apne aap ban jaate hain.
+# Inhe share karne ki zaroorat nahi — doosre computer pe apne aap ban jaate hain.
+__pycache__/
+*.py[cod]
+
+# ------------------------------------------------------------
+# VIRTUAL ENVIRONMENT
+# ------------------------------------------------------------
+# "venv" ek alag Python environment hoti hai sirf is project ke liye.
+# Yeh bahut badi hoti hai (100MB+) isliye kabhi Git mein mat daalo.
+# Doosra banda apni machine pe khud banayega: python -m venv venv
+venv/
+env/
+.env/
+.venv/
+
+# ------------------------------------------------------------
+# ENVIRONMENT VARIABLES / SECRET KEYS
+# ------------------------------------------------------------
+# Agar kabhi passwords, API keys, ya secret config store karo
+# toh .env file mein karo — aur yeh file KABHI share mat karo!
+.env
+*.env
+secrets.py
+
+# ------------------------------------------------------------
+# FLASK / DEVELOPMENT FILES
+# ------------------------------------------------------------
+# Flask ka debug mode kuch files bana sakta hai — inhe ignore karo.
+instance/
+.flask_session/
+
+# ------------------------------------------------------------
+# OS-GENERATED FILES
+# ------------------------------------------------------------
+# Windows, Mac aur Linux apne aap kuch hidden files banate hain.
+# Yeh sirf OS ke liye hoti hain — project se koi lena dena nahi.
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Mac
+.DS_Store
+
+# ------------------------------------------------------------
+# CODE EDITOR / IDE FILES
+# ------------------------------------------------------------
+# Har developer ka editor alag hota hai — editor settings share karne
+# ki zaroorat nahi (unless team ne agree kiya ho).
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# ------------------------------------------------------------
+# BUILD / DISTRIBUTION FILES
+# ------------------------------------------------------------
+# Yeh tab bante hain jab Python package publish karte hain (PyPI pe).
+# Abhi zaroorat nahi, lekin best practice hai inhe ignore karna.
+dist/
+build/
+*.egg-info/
